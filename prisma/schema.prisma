@@ -1,0 +1,330 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  password      String?
+  name          String?
+  image         String?
+  role          String    @default("PLANNER")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  profile       Profile?
+  funeralPlans  FuneralPlan[]
+  nominees      Nominee[]
+  documents     Document[]
+  auditLogs     AuditLog[]
+  notifications Notification[]
+  reminders     Reminder[]
+  reviews       Review[]
+  serviceRequests ServiceRequest[]
+
+  providerProfile ServiceProvider?
+}
+
+model Profile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  phone       String?
+  dateOfBirth DateTime?
+  city        String?
+  state       String?
+  country     String?
+  bio         String?
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+
+model FuneralPlan {
+  id              String         @id @default(cuid())
+  userId          String
+  title           String         @default("My Funeral Plan")
+  status          String         @default("DRAFT")
+  progress        Int            @default(0)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  finalizedAt     DateTime?
+
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  versions        PlanVersion[]
+  ritualPrefs     RitualPreference?
+  ceremonyPrefs   CeremonyPreference?
+  budget          Budget?
+  nominees        Nominee[]
+  documents       Document[]
+  serviceRequests ServiceRequest[]
+
+  funeralLocation String?
+  funeralCity     String?
+  funeralType     String?
+  religiousType   String?
+  specialInstructions String?
+}
+
+model PlanVersion {
+  id          String      @id @default(cuid())
+  planId      String
+  version     Int
+  changes     String
+  createdAt   DateTime    @default(now())
+  plan        FuneralPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+}
+
+model RitualPreference {
+  id              String      @id @default(cuid())
+  planId          String      @unique
+  tradition       String?
+  ritualType      String?
+  clergyPref      String?
+  prayers         String?
+  customs         String?
+  language        String?
+  music           String?
+  instructions    String?
+  preferNotSpecify Boolean @default(false)
+  plan            FuneralPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+}
+
+model CeremonyPreference {
+  id              String      @id @default(cuid())
+  planId          String      @unique
+  music           String?
+  flowers         String?
+  decoration      String?
+  clothing        String?
+  duration        String?
+  familyInstructions String?
+  guestPreferences String?
+  personalMessage String?
+  plan            FuneralPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+}
+
+
+
+model Nominee {
+  id          String        @id @default(cuid())
+  planId      String
+  userId      String?
+  name        String
+  relationship String
+  email       String
+  phone       String?
+  accessLevel String        @default("VIEW_ONLY")
+  status      String        @default("INVITED")
+  invitedAt   DateTime      @default(now())
+  acceptedAt  DateTime?
+  revokedAt   DateTime?
+
+  plan        FuneralPlan   @relation(fields: [planId], references: [id], onDelete: Cascade)
+  user        User?         @relation(fields: [userId], references: [id])
+}
+
+
+model ServiceProvider {
+  id          String         @id @default(cuid())
+  userId      String         @unique
+  businessName String
+  description String?
+  category    String
+  location    String
+  city        String
+  state       String
+  rating      Float          @default(0)
+  reviewCount Int            @default(0)
+  status      String         @default("PENDING")
+  verifiedAt  DateTime?
+  createdAt   DateTime       @default(now())
+
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  services    ProviderService[]
+  availability ProviderAvailability[]
+  requests    ServiceRequest[]
+  reviews     Review[]
+}
+
+model ProviderService {
+  id          String          @id @default(cuid())
+  providerId  String
+  name        String
+  description String?
+  price       Float
+  duration    String?
+
+  provider    ServiceProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+}
+
+model ProviderAvailability {
+  id          String          @id @default(cuid())
+  providerId  String
+  dayOfWeek   Int
+  startTime   String
+  endTime     String
+  isAvailable Boolean         @default(true)
+
+  provider    ServiceProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+}
+
+
+model ServiceRequest {
+  id          String          @id @default(cuid())
+  planId      String
+  providerId  String
+  userId      String
+  serviceName String
+  status      String          @default("PENDING")
+  notes       String?
+  price       Float?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  plan        FuneralPlan     @relation(fields: [planId], references: [id], onDelete: Cascade)
+  provider    ServiceProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Budget {
+  id              String      @id @default(cuid())
+  planId          String      @unique
+  totalBudget     Float       @default(0)
+  funeralService  Float       @default(0)
+  transportation  Float       @default(0)
+  flowers         Float       @default(0)
+  clergy          Float       @default(0)
+  decoration      Float       @default(0)
+  cremation       Float       @default(0)
+  other           Float       @default(0)
+
+  plan            FuneralPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+}
+
+model Document {
+  id          String      @id @default(cuid())
+  userId      String
+  planId      String?
+  name        String
+  fileType    String
+  fileSize    Int
+  fileUrl     String
+  isPrivate   Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan        FuneralPlan? @relation(fields: [planId], references: [id])
+}
+
+model Review {
+  id          String          @id @default(cuid())
+  userId      String
+  providerId  String
+  rating      Int
+  comment     String?
+  createdAt   DateTime        @default(now())
+
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider    ServiceProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  action      String
+  resourceType String
+  resourceId  String?
+  metadata    String?
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+
+  user        User?    @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  message     String
+  isRead      Boolean  @default(false)
+  type        String
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Reminder {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  description String?
+  frequency   String   @default("ONCE")
+  nextDue     DateTime
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  icon        String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+}
+
+model Dispute {
+  id          String   @id @default(cuid())
+  reporterId  String
+  reportedId  String
+  type        String
+  description String
+  status      String   @default("OPEN")
+  resolution  String?
+  createdAt   DateTime @default(now())
+  resolvedAt  DateTime?
+}
