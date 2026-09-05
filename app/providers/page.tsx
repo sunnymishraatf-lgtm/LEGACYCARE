@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Star, MapPin } from "lucide-react";
 
@@ -24,8 +25,8 @@ export default async function ProvidersPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {providers.map((provider) => (
-            <Link key={provider.id} href={`/providers/${provider.id}`}>
-              <Card className="h-full hover:border-ink transition-colors cursor-pointer">
+            <Card key={provider.id} className="h-full hover:border-ink transition-colors flex flex-col">
+              <Link href={`/providers/${provider.id}`} className="flex-1">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div>
@@ -61,8 +62,13 @@ export default async function ProvidersPage() {
                     </div>
                   )}
                 </CardContent>
-              </Card>
-            </Link>
+              </Link>
+              <div className="mt-6 pt-4 border-t-2 border-paper-raised">
+                <Button asChild className="w-full">
+                  <Link href={`/providers/${provider.id}`}>View Provider</Link>
+                </Button>
+              </div>
+            </Card>
           ))}
         </div>
       </div>

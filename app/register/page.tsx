@@ -32,8 +32,8 @@ export default function RegisterPage() {
         throw new Error(err.error || "Registration failed");
       }
       router.push("/login?registered=true");
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Registration failed");
       setLoading(false);
     }
   }

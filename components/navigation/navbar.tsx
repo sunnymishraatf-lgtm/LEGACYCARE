@@ -30,11 +30,12 @@ export function Navbar() {
       : "/dashboard";
 
   return (
+    <>
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
           ? "bg-ground/95 backdrop-blur-md border-b border-line"
-          : "bg-transparent"
+          : "bg-ground/80 backdrop-blur-sm"
       }`}
     >
       <nav className="section-padding flex items-center justify-between h-16 md:h-20">
@@ -161,5 +162,7 @@ export function Navbar() {
         </div>
       )}
     </header>
+    <div aria-hidden="true" className="h-16 md:h-20" />
+    </>
   );
 }

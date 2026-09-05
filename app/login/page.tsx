@@ -17,17 +17,22 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
     const formData = new FormData(e.currentTarget);
-    const res = await signIn("credentials", {
-      email: formData.get("email") as string,
-      password: formData.get("password") as string,
-      redirect: false,
-    });
-    if (res?.error) {
-      setError("Invalid email or password");
-      setLoading(false);
-    } else {
+    try {
+      const res = await signIn("credentials", {
+        email: formData.get("email") as string,
+        password: formData.get("password") as string,
+        redirect: false,
+      });
+      if (!res || res.error) {
+        setError("Invalid email or password");
+        return;
+      }
       router.push("/dashboard");
       router.refresh();
+    } catch {
+      setError("Unable to sign in right now. Please try again.");
+    } finally {
+      setLoading(false);
     }
   }
 
