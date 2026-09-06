@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Star, MapPin } from "lucide-react";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 
 export default async function ProvidersPage() {
