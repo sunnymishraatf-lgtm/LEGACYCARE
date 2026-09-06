@@ -1,7 +1,6 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
-import { db } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { NomineeInvite } from "@/components/nominees/nominee-invite";
@@ -13,11 +12,8 @@ export default async function NomineesPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/login");
 
-  const nominees = await db.nominee.findMany({
-    where: { plan: { userId: session.user.id } },
-    include: { plan: true },
-    orderBy: { invitedAt: "desc" },
-  });
+  // DEMO MODE: nominees are not persisted without a production database.
+  const nominees: Array<{ id: string; name: string; relationship: string; email: string; phone: string | null; accessLevel: string; status: string }> = [];
 
   return (
     <div className="min-h-screen bg-paper pt-24 pb-12">

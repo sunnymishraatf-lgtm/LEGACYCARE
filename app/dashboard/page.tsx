@@ -1,7 +1,6 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
-import { db } from "@/lib/db";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,31 +9,29 @@ import { formatDate, formatCurrency } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
+type DashboardPlan = {
+  id: string;
+  title: string;
+  status: string;
+  progress: number;
+  updatedAt: Date;
+  funeralLocation: string | null;
+  funeralType: string | null;
+  budget: { totalBudget: number } | null;
+  versions: Array<{ version: number }>;
+  _count: { nominees: number; documents: number };
+};
+
+type DashboardNotification = { id: string; title: string; message: string };
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/login");
 
-  const plans = await db.funeralPlan.findMany({
-    where: { userId: session.user.id },
-    include: {
-      ritualPrefs: true,
-      ceremonyPrefs: true,
-      budget: true,
-      nominees: true,
-      documents: true,
-      versions: { orderBy: { version: "desc" }, take: 1 },
-      _count: { select: { nominees: true, documents: true } },
-    },
-    orderBy: { updatedAt: "desc" },
-  });
-
-  const notifications = await db.notification.findMany({
-    where: { userId: session.user.id, isRead: false },
-    orderBy: { createdAt: "desc" },
-    take: 5,
-  });
-
+  // DEMO MODE: the dashboard is intentionally database-free so it works on Vercel
+  // without DATABASE_URL. Planning APIs remain available for a database deployment.
+  const plans: DashboardPlan[] = [];
+  const notifications: DashboardNotification[] = [];
   const mainPlan = plans[0];
 
   return (

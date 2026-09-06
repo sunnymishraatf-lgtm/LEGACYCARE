@@ -1,17 +1,11 @@
-import { db } from "@/lib/db";
+import { getDemoProvider } from "@/lib/demo-data/providers";
 import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Star, MapPin, Clock } from "lucide-react";
 
-export const dynamic = "force-dynamic";
-
-
-export default async function ProviderDetailPage({ params }: { params: { id: string } }) {
-  const provider = await db.serviceProvider.findUnique({
-    where: { id: params.id },
-    include: { services: true, availability: true, reviews: { include: { user: true } } },
-  });
+export default function ProviderDetailPage({ params }: { params: { id: string } }) {
+  const provider = getDemoProvider(params.id);
 
   if (!provider) notFound();
 

@@ -25,8 +25,6 @@ export function Navbar() {
   const dashboardLink =
     session?.user?.role === "ADMIN"
       ? "/admin"
-      : session?.user?.role === "PROVIDER"
-      ? "/provider"
       : "/dashboard";
 
   return (

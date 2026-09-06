@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { findLocalDemoAccount } from "@/lib/demo-auth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -18,9 +19,15 @@ export default function LoginPage() {
     setError("");
     const formData = new FormData(e.currentTarget);
     try {
+      const email = String(formData.get("email") || "");
+      const password = String(formData.get("password") || "");
+      const browserAccount = findLocalDemoAccount(email, password);
       const res = await signIn("credentials", {
-        email: formData.get("email") as string,
-        password: formData.get("password") as string,
+        email,
+        password,
+        demoLocal: browserAccount ? "true" : "false",
+        demoName: browserAccount?.name,
+        demoRole: browserAccount?.role,
         redirect: false,
       });
       if (!res || res.error) {

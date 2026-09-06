@@ -1,7 +1,6 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
-import { db } from "@/lib/db";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,11 +14,8 @@ export default async function PlansListPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/login");
 
-  const plans = await db.funeralPlan.findMany({
-    where: { userId: session.user.id },
-    include: { _count: { select: { nominees: true, documents: true } } },
-    orderBy: { updatedAt: "desc" },
-  });
+  // DEMO MODE: show the existing empty state without requiring DATABASE_URL.
+  const plans: Array<{ id: string; title: string; updatedAt: Date; status: string; progress: number; _count: { nominees: number; documents: number } }> = [];
 
   return (
     <div className="min-h-screen bg-paper pt-24 pb-12">

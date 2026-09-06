@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { saveLocalDemoAccount } from "@/lib/demo-auth";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -17,20 +18,25 @@ export default function RegisterPage() {
     setError("");
     const formData = new FormData(e.currentTarget);
     try {
+      const name = String(formData.get("name") || "").trim();
+      const email = String(formData.get("email") || "").trim().toLowerCase();
+      const password = String(formData.get("password") || "");
+      const role = String(formData.get("role") || "PLANNER") as "PLANNER" | "PROVIDER";
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: formData.get("name"),
-          email: formData.get("email"),
-          password: formData.get("password"),
-          role: formData.get("role"),
+          name,
+          email,
+          password,
+          role,
         }),
       });
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.error || "Registration failed");
       }
+      saveLocalDemoAccount({ id: `local-demo-${Date.now()}`, name, email, password, role });
       router.push("/login?registered=true");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Registration failed");

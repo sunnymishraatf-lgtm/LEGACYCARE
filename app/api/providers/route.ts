@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { db } from "@/lib/db";
+import { demoProviders } from "@/lib/demo-data/providers";
 
 export const dynamic = "force-dynamic";
 
@@ -11,32 +11,10 @@ export async function GET(req: NextRequest) {
     const category = searchParams.get("category")?.trim();
     const city = searchParams.get("city")?.trim();
 
-    const providers = await db.serviceProvider.findMany({
-      where: {
-        status: "VERIFIED",
-
-        ...(category
-          ? {
-              category,
-            }
-          : {}),
-
-        ...(city
-          ? {
-              city,
-            }
-          : {}),
-      },
-
-      include: {
-        services: true,
-        reviews: true,
-      },
-
-      orderBy: {
-        rating: "desc",
-      },
-    });
+    const providers = demoProviders
+      .filter((provider) => !category || provider.category === category)
+      .filter((provider) => !city || provider.city.toLowerCase() === city.toLowerCase())
+      .sort((a, b) => b.rating - a.rating);
 
     return NextResponse.json(providers);
   } catch (error) {

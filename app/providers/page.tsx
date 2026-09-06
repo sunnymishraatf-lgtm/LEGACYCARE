@@ -1,18 +1,10 @@
-import { db } from "@/lib/db";
+import { demoProviders } from "@/lib/demo-data/providers";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Star, MapPin } from "lucide-react";
 
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
-
-
-export default async function ProvidersPage() {
-  const providers = await db.serviceProvider.findMany({
-    where: { status: "VERIFIED" },
-    include: { services: true, reviews: true },
-    orderBy: { rating: "desc" },
-  });
+export default function ProvidersPage() {
+  const providers = [...demoProviders].sort((a, b) => b.rating - a.rating);
 
   return (
     <div className="min-h-screen bg-paper pt-24 pb-12">

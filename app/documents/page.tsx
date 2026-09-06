@@ -1,7 +1,6 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
-import { db } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Lock, Download } from "lucide-react";
@@ -13,14 +12,9 @@ export default async function DocumentsPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/login");
 
-  const [documents, plan] = await Promise.all([
-    db.document.findMany({
-      where: { userId: session.user.id },
-      include: { plan: true },
-      orderBy: { createdAt: "desc" },
-    }),
-    db.funeralPlan.findFirst({ where: { userId: session.user.id } }),
-  ]);
+  // DEMO MODE: document storage is unavailable without an external persistence service.
+  const documents: Array<{ id: string; name: string; isPrivate: boolean; fileUrl: string; fileType: string; fileSize: number; plan: { title: string } | null }> = [];
+  const plan = undefined as { id: string } | undefined;
 
   return (
     <div className="min-h-screen bg-paper pt-24 pb-12">
