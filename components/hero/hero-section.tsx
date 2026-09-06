@@ -31,20 +31,12 @@ export function HeroSection() {
         <div className="absolute inset-0 bg-ground/60" />
       </motion.div>
 
-      {/* Timing Beam */}
-      <motion.div
-        initial={{ scaleX: 0 }}
-        animate={{ scaleX: 1 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="absolute top-1/2 left-0 right-0 h-px bg-action/30 z-10 origin-left"
-      />
-
       {/* Content */}
-      <div className="relative z-20 section-padding w-full max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <div className="relative z-20 section-padding w-full max-w-7xl mx-auto py-24 md:py-28">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-12 xl:gap-16 items-center">
           {/* Left: Wordmark & Text */}
-          <div className="space-y-8">
-            <div className="overflow-hidden">
+          <div className="min-w-0 space-y-8">
+            <div className="w-full overflow-hidden">
               <motion.h1
                 initial={{ y: "112%" }}
                 animate={{ y: 0 }}
@@ -53,11 +45,10 @@ export function HeroSection() {
                   ease: [0.22, 1, 0.36, 1],
                   delay: 0.55,
                 }}
-                className="font-display text-step-5 md:text-step-6 font-black text-snow-100 leading-none"
+                className="w-full max-w-full font-display text-step-4 sm:text-step-5 font-black text-snow-100 leading-[0.9]"
               >
-                LEGACY
-                <br />
-                CARE
+                <span className="block whitespace-nowrap">LEGACY</span>
+                <span className="block whitespace-nowrap">CARE</span>
               </motion.h1>
             </div>
 
@@ -110,7 +101,7 @@ export function HeroSection() {
               ease: [0.22, 1, 0.36, 1],
               delay: 1.35,
             }}
-            className="grid grid-cols-2 gap-6"
+            className="min-w-0 grid grid-cols-2 gap-6"
           >
             {[
               { num: "01", label: "Plan" },

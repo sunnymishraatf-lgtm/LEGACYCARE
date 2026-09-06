@@ -36,3 +36,5 @@ next-env.d.ts
 # Database
 *.db
 *.db-journal
+
+.vercel
